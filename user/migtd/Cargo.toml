@@ -1,0 +1,20 @@
+# MigTD User Application for Coconut-SVSM
+# Runs in VMPL3 to provide TDX-like migration trust domain functionality on SEV-SNP
+
+[package]
+name = "migtd"
+version = "0.1.0"
+edition.workspace = true
+description = "Migration Trust Domain user-space application for SEV-SNP"
+
+[[bin]]
+name = "migtd"
+path = "src/main.rs"
+test = false
+doctest = false
+
+[dependencies]
+userlib.workspace = true
+
+[lints]
+workspace = true

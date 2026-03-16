@@ -1,0 +1,37 @@
+{
+    "igvm": {
+        "qemu": {
+            "output": "coconut-migtd-qemu.igvm",
+            "platforms": [
+                "snp"
+            ],
+            "policy": "0x30000",
+            "measure": "print",
+            "check-kvm": true
+        }
+    },
+    "kernel": {
+        "svsm": {
+            "features": "vtpm",
+            "binary": false
+        },
+        "stage2": {
+            "manifest": "kernel/Cargo.toml",
+            "binary": true,
+            "objcopy": "binary"
+        }
+    },
+    "firmware": {
+        "env": "FW_FILE"
+    },
+    "fs": {
+        "modules": {
+            "userinit": {
+                "path": "/init"
+            },
+            "migtd": {
+                "path": "/migtd"
+            }
+        }
+    }
+}
