@@ -430,6 +430,11 @@ extern "C" fn ex_handler_system_call(
         SYS_RMDIR => sys_rmdir(ctxt.regs.rdi),
         // Class 3 SysCalls.
         SYS_CAPABILITIES => sys_capabilities(ctxt.regs.rdi as u32),
+        // Class 4 SysCalls (MigAgent).
+        SYS_MIGAGENT_WAIT => sys_migagent_wait(ctxt.regs.rdi, ctxt.regs.rsi),
+        SYS_MIGAGENT_SEND => sys_migagent_send(ctxt.regs.rdi, ctxt.regs.rsi, ctxt.regs.r8),
+        SYS_MIGAGENT_RECV => sys_migagent_recv(ctxt.regs.rdi, ctxt.regs.rsi, ctxt.regs.r8),
+        SYS_MIGAGENT_STATUS => sys_migagent_status(ctxt.regs.rdi, ctxt.regs.rsi),
         _ => Err(SysCallError::EINVAL),
     }
     .map_or_else(|e| e as usize, |v| v as usize);

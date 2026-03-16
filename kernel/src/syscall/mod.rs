@@ -7,9 +7,11 @@
 mod class0;
 mod class1;
 mod class3;
+mod class4;
 mod obj;
 
 pub use class0::*;
 pub use class1::*;
 pub use class3::*;
+pub use class4::*;
 pub use obj::{Obj, ObjError, ObjHandle};

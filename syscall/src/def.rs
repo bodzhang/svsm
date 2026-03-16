@@ -11,6 +11,7 @@ use zerocopy::IntoBytes;
 const CLASS0: u64 = 0;
 const CLASS1: u64 = 1 << 32;
 const CLASS3: u64 = 3 << 32;
+const CLASS4: u64 = 4 << 32;
 
 // Syscall number in class0
 pub const SYS_EXIT: u64 = CLASS0;
@@ -31,6 +32,12 @@ pub const SYS_RMDIR: u64 = CLASS1 + 9;
 
 // Syscall number in class3
 pub const SYS_CAPABILITIES: u64 = CLASS3;
+
+// Syscall number in class4 (MigAgent)
+pub const SYS_MIGAGENT_WAIT: u64 = CLASS4;
+pub const SYS_MIGAGENT_SEND: u64 = CLASS4 + 1;
+pub const SYS_MIGAGENT_RECV: u64 = CLASS4 + 2;
+pub const SYS_MIGAGENT_STATUS: u64 = CLASS4 + 3;
 
 ///Maximum length of path name including null character in bytes
 pub const PATH_MAX: usize = 4096;

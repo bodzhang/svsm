@@ -111,6 +111,11 @@ enum GHCBExitCode {
     CONFIGURE_INT_INJ = 0x8000_001B,
     DISABLE_ALT_INJ = 0x8000_001C,
     SPECIFIC_EOI = 0x8000_001D,
+    // MigAgent communication exit codes
+    MIG_AGENT_WAIT = 0x8000_0020,
+    MIG_AGENT_SEND = 0x8000_0021,
+    MIG_AGENT_RECV = 0x8000_0022,
+    MIG_AGENT_STATUS = 0x8000_0023,
 }
 
 #[derive(Clone, Copy, Debug)]
@@ -805,6 +810,152 @@ impl GHCB {
         }
         self.clear();
         self.vmgexit(GHCBExitCode::DISABLE_ALT_INJ, exit_info, 0)?;
+        Ok(())
+    }
+
+    /// Wait for a migration request from the VMM.
+    ///
+    /// This function blocks until the VMM signals that a migration operation
+    /// should begin. The `data_page` should be a shared memory page where
+    /// the VMM can write migration request information.
+    ///
+    /// # Arguments
+    /// * `data_page` - Virtual address of a shared memory page for request data
+    /// * `data_len` - Size of the data buffer
+    ///
+    /// # Returns
+    /// * `Ok(usize)` - Number of bytes of request data written by VMM
+    /// * `Err(SvsmError)` - If the operation failed
+    pub fn migagent_wait(
+        &self,
+        data_page: VirtAddr,
+        data_len: usize,
+    ) -> Result<usize, SvsmError> {
+        self.clear();
+
+        let info1: u64 = u64::from(virt_to_phys(data_page));
+        let info2: u64 = data_len as u64;
+
+        self.vmgexit(GHCBExitCode::MIG_AGENT_WAIT, info1, info2)?;
+
+        let sw_exit_info_2 = self.get_exit_info_2_valid()?;
+        if sw_exit_info_2 != 0 {
+            return Err(GhcbError::VmgexitError(
+                self.sw_exit_info_1.load(Ordering::Relaxed),
+                sw_exit_info_2,
+            )
+            .into());
+        }
+
+        // RAX contains the number of bytes written
+        Ok(self.rax.load(Ordering::Relaxed) as usize)
+    }
+
+    /// Send data to the VMM as part of a migration operation.
+    ///
+    /// # Arguments
+    /// * `request_id` - Migration request identifier from VMM
+    /// * `data_page` - Virtual address of shared memory containing data to send
+    /// * `data_len` - Length of data to send
+    ///
+    /// # Returns
+    /// * `Ok(())` - Data sent successfully
+    /// * `Err(SvsmError)` - If the operation failed
+    pub fn migagent_send(
+        &self,
+        request_id: u64,
+        data_page: VirtAddr,
+        data_len: usize,
+    ) -> Result<(), SvsmError> {
+        self.clear();
+
+        let info1: u64 = u64::from(virt_to_phys(data_page));
+        let info2: u64 = data_len as u64;
+
+        self.set_rax_valid(request_id);
+
+        self.vmgexit(GHCBExitCode::MIG_AGENT_SEND, info1, info2)?;
+
+        let sw_exit_info_2 = self.get_exit_info_2_valid()?;
+        if sw_exit_info_2 != 0 {
+            return Err(GhcbError::VmgexitError(
+                self.sw_exit_info_1.load(Ordering::Relaxed),
+                sw_exit_info_2,
+            )
+            .into());
+        }
+
+        Ok(())
+    }
+
+    /// Receive data from the VMM as part of a migration operation.
+    ///
+    /// # Arguments
+    /// * `request_id` - Migration request identifier from VMM
+    /// * `data_page` - Virtual address of shared memory buffer to receive data
+    /// * `data_len` - Maximum length of data buffer
+    ///
+    /// # Returns
+    /// * `Ok(usize)` - Number of bytes received
+    /// * `Err(SvsmError)` - If the operation failed
+    pub fn migagent_receive(
+        &self,
+        request_id: u64,
+        data_page: VirtAddr,
+        data_len: usize,
+    ) -> Result<usize, SvsmError> {
+        self.clear();
+
+        let info1: u64 = u64::from(virt_to_phys(data_page));
+        let info2: u64 = data_len as u64;
+
+        self.set_rax_valid(request_id);
+
+        self.vmgexit(GHCBExitCode::MIG_AGENT_RECV, info1, info2)?;
+
+        let sw_exit_info_2 = self.get_exit_info_2_valid()?;
+        if sw_exit_info_2 != 0 {
+            return Err(GhcbError::VmgexitError(
+                self.sw_exit_info_1.load(Ordering::Relaxed),
+                sw_exit_info_2,
+            )
+            .into());
+        }
+
+        // RAX contains the number of bytes received
+        Ok(self.rax.load(Ordering::Relaxed) as usize)
+    }
+
+    /// Report migration status to the VMM.
+    ///
+    /// # Arguments
+    /// * `request_id` - Migration request identifier from VMM
+    /// * `status` - Status code to report (0 = success, non-zero = error)
+    ///
+    /// # Returns
+    /// * `Ok(())` - Status reported successfully
+    /// * `Err(SvsmError)` - If the operation failed
+    pub fn migagent_report_status(
+        &self,
+        request_id: u64,
+        status: u64,
+    ) -> Result<(), SvsmError> {
+        self.clear();
+
+        let info1: u64 = request_id;
+        let info2: u64 = status;
+
+        self.vmgexit(GHCBExitCode::MIG_AGENT_STATUS, info1, info2)?;
+
+        let sw_exit_info_2 = self.get_exit_info_2_valid()?;
+        if sw_exit_info_2 != 0 {
+            return Err(GhcbError::VmgexitError(
+                self.sw_exit_info_1.load(Ordering::Relaxed),
+                sw_exit_info_2,
+            )
+            .into());
+        }
+
         Ok(())
     }
 
