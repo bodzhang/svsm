@@ -1,7 +1,7 @@
 {
     "igvm": {
         "qemu": {
-            "output": "coconut-migtd-qemu.igvm",
+            "output": "coconut-migagent-qemu.igvm",
             "platforms": [
                 "snp"
             ],
@@ -29,8 +29,8 @@
             "userinit": {
                 "path": "/init"
             },
-            "migtd": {
-                "path": "/migtd"
+            "migagent": {
+                "path": "/migagent"
             }
         }
     }

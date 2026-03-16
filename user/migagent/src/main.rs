@@ -2,8 +2,8 @@
 //
 // Copyright (c) 2024-2025
 //
-// MigTD User Application for Coconut-SVSM
-// This runs in VMPL3 on SEV-SNP and provides migration trust domain functionality
+// MigAgent User Application for Coconut-SVSM
+// This runs in VMPL3 on SEV-SNP and provides migration agent functionality
 
 #![no_std]
 #![no_main]
@@ -14,34 +14,34 @@ mod state;
 mod protocol;
 mod attestation;
 
-use state::MigTdState;
+use state::MigAgentState;
 
 declare_main!(main);
 
-/// Main entry point for MigTD
+/// Main entry point for MigAgent
 fn main() -> u32 {
-    println!("=== MigTD VMPL3 Application Starting ===");
+    println!("=== MigAgent VMPL3 Application Starting ===");
     println!("Running on SEV-SNP via Coconut-SVSM");
     
-    // Initialize MigTD state machine
-    let mut state = MigTdState::new();
+    // Initialize MigAgent state machine
+    let mut state = MigAgentState::new();
     
     // Main event loop
-    match run_migtd(&mut state) {
+    match run_migagent(&mut state) {
         Ok(()) => {
-            println!("MigTD completed successfully");
+            println!("MigAgent completed successfully");
             0
         }
         Err(e) => {
-            println!("MigTD failed with error: {:?}", e);
+            println!("MigAgent failed with error: {:?}", e);
             1
         }
     }
 }
 
-/// Run the MigTD state machine
-fn run_migtd(state: &mut MigTdState) -> Result<(), MigTdError> {
-    println!("Initializing MigTD state machine...");
+/// Run the MigAgent state machine
+fn run_migagent(state: &mut MigAgentState) -> Result<(), MigAgentError> {
+    println!("Initializing MigAgent state machine...");
     
     // Initialize
     state.initialize()?;
@@ -64,7 +64,7 @@ fn run_migtd(state: &mut MigTdState) -> Result<(), MigTdError> {
         }
         Err(e) => {
             println!("Attestation failed: {:?}", e);
-            return Err(MigTdError::AttestationFailed);
+            return Err(MigAgentError::AttestationFailed);
         }
     }
     
@@ -77,9 +77,9 @@ fn run_migtd(state: &mut MigTdState) -> Result<(), MigTdError> {
     Ok(())
 }
 
-/// MigTD error types
+/// MigAgent error types
 #[derive(Debug, Clone, Copy)]
-pub enum MigTdError {
+pub enum MigAgentError {
     /// State machine error
     InvalidState,
     /// Protocol error
@@ -92,7 +92,7 @@ pub enum MigTdError {
     NotSupported,
 }
 
-impl core::fmt::Display for MigTdError {
+impl core::fmt::Display for MigAgentError {
     fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
         match self {
             Self::InvalidState => write!(f, "Invalid state"),

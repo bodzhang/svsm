@@ -1,12 +1,12 @@
 // SPDX-License-Identifier: MIT
 //
-// MigTD State Machine
+// MigAgent State Machine
 // 
-// State transitions for migration trust domain operations
+// State transitions for migration agent operations
 
-use crate::{MigTdError, protocol::MigrationEvent};
+use crate::{MigAgentError, protocol::MigrationEvent};
 
-/// MigTD state machine states
+/// MigAgent state machine states
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum State {
     /// Initial state, waiting for initialization
@@ -33,9 +33,9 @@ impl Default for State {
     }
 }
 
-/// MigTD state machine
+/// MigAgent state machine
 #[derive(Debug)]
-pub struct MigTdState {
+pub struct MigAgentState {
     state: State,
     /// Role: source or destination
     role: MigrationRole,
@@ -49,8 +49,8 @@ pub enum MigrationRole {
     Destination,
 }
 
-impl MigTdState {
-    /// Create a new MigTD state machine
+impl MigAgentState {
+    /// Create a new MigAgent state machine
     pub fn new() -> Self {
         Self {
             state: State::Init,
@@ -64,9 +64,9 @@ impl MigTdState {
     }
     
     /// Initialize the state machine
-    pub fn initialize(&mut self) -> Result<(), MigTdError> {
+    pub fn initialize(&mut self) -> Result<(), MigAgentError> {
         if self.state != State::Init {
-            return Err(MigTdError::InvalidState);
+            return Err(MigAgentError::InvalidState);
         }
         
         // Perform initialization
@@ -79,14 +79,14 @@ impl MigTdState {
     }
     
     /// Handle a migration event
-    pub fn handle_event(&mut self, event: MigrationEvent) -> Result<(), MigTdError> {
+    pub fn handle_event(&mut self, event: MigrationEvent) -> Result<(), MigAgentError> {
         let next_state = self.transition(event)?;
         self.state = next_state;
         Ok(())
     }
     
     /// State transition logic
-    fn transition(&self, event: MigrationEvent) -> Result<State, MigTdError> {
+    fn transition(&self, event: MigrationEvent) -> Result<State, MigAgentError> {
         match (self.state, event) {
             // From Ready state
             (State::Ready, MigrationEvent::MigrationRequest) => {
@@ -128,7 +128,7 @@ impl MigTdState {
             }
             
             // Invalid transition
-            _ => Err(MigTdError::InvalidState),
+            _ => Err(MigAgentError::InvalidState),
         }
     }
     
@@ -153,7 +153,7 @@ impl MigTdState {
     }
 }
 
-impl Default for MigTdState {
+impl Default for MigAgentState {
     fn default() -> Self {
         Self::new()
     }

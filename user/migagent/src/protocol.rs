@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: MIT
 //
-// MigTD Protocol Definitions
+// MigAgent Protocol Definitions
 // 
 // Migration protocol messages and events
 
-use crate::MigTdError;
+use crate::MigAgentError;
 
 /// Migration events that drive state transitions
 #[derive(Debug, Clone, Copy)]
@@ -25,7 +25,7 @@ pub enum MigrationEvent {
     Abort,
 }
 
-/// Message types for MigTD protocol
+/// Message types for MigAgent protocol
 #[derive(Debug)]
 #[repr(u8)]
 pub enum MessageType {
@@ -45,7 +45,7 @@ pub enum MessageType {
     Shutdown = 7,
 }
 
-/// Message header for MigTD protocol
+/// Message header for MigAgent protocol
 #[repr(C, packed)]
 #[derive(Debug, Clone, Copy)]
 pub struct MessageHeader {
@@ -75,8 +75,8 @@ impl MessageHeader {
 /// Query capabilities
 #[repr(C)]
 #[derive(Debug, Clone, Copy)]
-pub struct MigTdInfo {
-    /// MigTD version
+pub struct MigAgentInfo {
+    /// MigAgent version
     pub version: u32,
     /// Capabilities bitmap
     pub capabilities: u64,
@@ -84,7 +84,7 @@ pub struct MigTdInfo {
     pub reserved: [u8; 48],
 }
 
-impl Default for MigTdInfo {
+impl Default for MigAgentInfo {
     fn default() -> Self {
         Self {
             version: 0,
@@ -98,10 +98,10 @@ impl Default for MigTdInfo {
 #[repr(C)]
 #[derive(Debug, Clone, Copy)]
 pub struct QueryResponse {
-    /// Local MigTD info
-    pub local_info: MigTdInfo,
-    /// Remote MigTD info (if available)
-    pub remote_info: Option<MigTdInfo>,
+    /// Local MigAgent info
+    pub local_info: MigAgentInfo,
+    /// Remote MigAgent info (if available)
+    pub remote_info: Option<MigAgentInfo>,
 }
 
 /// Migration capabilities
@@ -122,18 +122,18 @@ pub mod capabilities {
 #[allow(dead_code)]
 pub trait MigrationProtocol {
     /// Send a query message
-    fn send_query(&mut self) -> Result<QueryResponse, MigTdError>;
+    fn send_query(&mut self) -> Result<QueryResponse, MigAgentError>;
     
     /// Send migration request
-    fn send_migration_request(&mut self) -> Result<(), MigTdError>;
+    fn send_migration_request(&mut self) -> Result<(), MigAgentError>;
     
     /// Receive migration request
-    fn recv_migration_request(&mut self) -> Result<bool, MigTdError>;
+    fn recv_migration_request(&mut self) -> Result<bool, MigAgentError>;
     
     /// Send attestation report
-    fn send_attestation_report(&mut self, report: &[u8]) -> Result<(), MigTdError>;
+    fn send_attestation_report(&mut self, report: &[u8]) -> Result<(), MigAgentError>;
     
     /// Receive attestation report into provided buffer
     /// Returns the number of bytes written
-    fn recv_attestation_report(&mut self, buffer: &mut [u8]) -> Result<usize, MigTdError>;
+    fn recv_attestation_report(&mut self, buffer: &mut [u8]) -> Result<usize, MigAgentError>;
 }

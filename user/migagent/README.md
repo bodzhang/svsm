@@ -1,11 +1,11 @@
-# MigTD User Application for Coconut-SVSM
+# MigAgent User Application for Coconut-SVSM
 
-This directory contains a user-space MigTD (Migration Trust Domain) application
+This directory contains a user-space MigAgent (Migration Agent) application
 that runs in VMPL3 on SEV-SNP via Coconut-SVSM.
 
 ## Overview
 
-MigTD provides trusted migration functionality for confidential VMs. This
+MigAgent provides trusted migration functionality for confidential VMs. This
 implementation runs as a privileged user-space application within the SVSM
 environment, leveraging SVSM's isolation and attestation capabilities.
 
@@ -23,7 +23,7 @@ environment, leveraging SVSM's isolation and attestation capabilities.
 │   - Attestation services (GHCB → PSP)                        │
 │   - vTPM services                                            │
 ├─────────────────────────────────────────────────────────────┤
-│ VMPL3: MigTD User Application (this code)                   │
+│ VMPL3: MigAgent User Application (this code)                │
 │   - State machine for migration workflow                     │
 │   - Protocol handling                                        │
 │   - Attestation verification                                 │
@@ -41,7 +41,7 @@ State machine implementation for migration workflow:
 - `Init` → `Ready` → `WaitingForAttestation` → `Attesting` → `MigrationReady` → `Complete`
 
 ### `protocol.rs`
-Protocol definitions for MigTD communication:
+Protocol definitions for MigAgent communication:
 - Message types and headers
 - Capability negotiation
 - Migration event types
@@ -57,20 +57,20 @@ SEV-SNP attestation support:
 Build with the standard SVSM build process:
 
 ```bash
-# Build migtd along with SVSM
+# Build migagent along with SVSM
 make FEATURES=vtpm
 
-# Or build just migtd for development
-cargo build --package migtd --target=x86_64-unknown-none
+# Or build just migagent for development
+cargo build --package migagent --target=x86_64-unknown-none
 ```
 
 ## Testing
 
-The migtd binary will be included in the SVSM filesystem image at `/migtd` when
-built with `configs/migtd-target.json`:
+The migagent binary will be included in the SVSM filesystem image at `/migagent` when
+built with `configs/migagent-target.json`:
 
 ```bash
-cargo xbuild ./configs/migtd-target.json
+cargo xbuild ./configs/migagent-target.json
 ```
 
 ## TODO
@@ -86,8 +86,8 @@ cargo xbuild ./configs/migtd-target.json
 
 This implementation is inspired by Intel's TDX MigTD but adapted for SEV-SNP:
 
-| TDX MigTD | SEV-SNP MigTD |
-|-----------|---------------|
+| TDX MigTD | SEV-SNP MigAgent |
+|-----------|------------------|
 | Runs as separate TD | Runs in VMPL3 |
 | TDCALL for measurements | GHCB for attestation |
 | RTMR for runtime measurements | vTPM PCRs |

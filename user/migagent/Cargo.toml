@@ -1,0 +1,20 @@
+# MigAgent User Application for Coconut-SVSM
+# Runs in VMPL3 to provide migration agent functionality on SEV-SNP
+
+[package]
+name = "migagent"
+version = "0.1.0"
+edition.workspace = true
+description = "Migration Agent user-space application for SEV-SNP"
+
+[[bin]]
+name = "migagent"
+path = "src/main.rs"
+test = false
+doctest = false
+
+[dependencies]
+userlib.workspace = true
+
+[lints]
+workspace = true

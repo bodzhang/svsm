@@ -1306,7 +1306,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "migtd"
+name = "migagent"
 version = "0.1.0"
 dependencies = [
  "userlib",

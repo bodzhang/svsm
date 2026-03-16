@@ -1,11 +1,11 @@
 // SPDX-License-Identifier: MIT
 //
-// MigTD Attestation Module
+// MigAgent Attestation Module
 //
-// SEV-SNP attestation for migration trust domain
+// SEV-SNP attestation for migration agent
 // Uses SVSM kernel services for attestation report generation
 
-use crate::MigTdError;
+use crate::MigAgentError;
 // Import print macros and console_print function from userlib
 use userlib::{print, println, console_print};
 
@@ -50,7 +50,7 @@ impl AttestationReport {
 /// measurement state to a remote verifier.
 ///
 /// Returns the length of the attestation report written to the static buffer.
-pub fn perform_attestation() -> Result<usize, MigTdError> {
+pub fn perform_attestation() -> Result<usize, MigAgentError> {
     println!("Requesting SNP attestation report...");
     
     // Create report data (nonce/binding data)
@@ -78,7 +78,7 @@ fn create_report_data() -> [u8; REPORT_DATA_SIZE] {
     
     // TODO: Generate proper nonce or binding data
     // For now, use a placeholder
-    data[0..8].copy_from_slice(b"MIGTD001");
+    data[0..8].copy_from_slice(b"MIGTAG01");
     
     data
 }
@@ -88,7 +88,7 @@ fn create_report_data() -> [u8; REPORT_DATA_SIZE] {
 /// This function requests an SNP attestation report via the SVSM kernel.
 /// The kernel will use GHCB GUEST_REQUEST to get the report from the PSP.
 /// Returns the length of valid data in the static buffer.
-fn get_snp_report(report_data: &[u8; REPORT_DATA_SIZE]) -> Result<usize, MigTdError> {
+fn get_snp_report(report_data: &[u8; REPORT_DATA_SIZE]) -> Result<usize, MigAgentError> {
     // TODO: Implement syscall to request attestation from kernel
     // For now, return a placeholder report
     
@@ -120,9 +120,9 @@ fn get_snp_report(report_data: &[u8; REPORT_DATA_SIZE]) -> Result<usize, MigTdEr
 /// - VM measurements match expected values
 /// - Report data matches expected binding
 #[allow(unused_variables)]
-pub fn verify_report(report: &[u8], expected_measurement: Option<&[u8; 48]>) -> Result<bool, MigTdError> {
+pub fn verify_report(report: &[u8], expected_measurement: Option<&[u8; 48]>) -> Result<bool, MigAgentError> {
     if report.len() < SNP_REPORT_SIZE {
-        return Err(MigTdError::AttestationFailed);
+        return Err(MigAgentError::AttestationFailed);
     }
     
     // TODO: Implement actual verification

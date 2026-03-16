@@ -29,8 +29,8 @@ members = [
     "user/lib",
     # Init user-space module
     "user/init",
-    # MigTD user-space module
-    "user/migtd",
+    # MigAgent user-space module
+    "user/migagent",
     # Release version identifier
     "release",
     # Virtio Drivers (MMIO)
